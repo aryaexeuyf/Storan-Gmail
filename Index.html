@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>SLOTID · OPERATOR SUITE</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: #0b0e14;
+            color: #eef2fb;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ---------- SIDEBAR (Premium dark glass) ---------- */
+        .sidebar {
+            width: 280px;
+            background: #10131c;
+            backdrop-filter: blur(4px);
+            border-right: 1px solid #262b38;
+            padding: 28px 18px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 8px 0 20px rgba(0,0,0,0.6);
+        }
+
+        .logo-area {
+            margin-bottom: 36px;
+            padding-left: 8px;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 26px;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #b1ffd6, #3ee7c0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo i {
+            color: #2ee7b0;
+            font-size: 28px;
+            background: #1e2532;
+            padding: 6px;
+            border-radius: 12px;
+        }
+
+        .badge-operator {
+            font-size: 12px;
+            background: #2a3346;
+            color: #b0c8ff;
+            padding: 4px 10px;
+            border-radius: 30px;
+            margin-top: 8px;
+            display: inline-block;
+            font-weight: 500;
+            border: 1px solid #3d4b66;
+        }
+
+        .nav-menu {
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            margin: 6px 0;
+            border-radius: 14px;
+            color: #9aa7c4;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: default;
+            border: 1px solid transparent;
+        }
+
+        .nav-item i {
+            width: 22px;
+            font-size: 1.2rem;
+        }
+
+        .nav-item.active {
+            background: #1b2332;
+            color: #b9f5e3;
+            border-left: 4px solid #00e6b8;
+            box-shadow: inset 0 0 0 1px #2e3b4e;
+        }
+
+        .nav-item:not(.active):hover {
+            background: #1a212e;
+            color: #d6e3ff;
+            border-color: #303b50;
+        }
+
+        .bottom-info {
+            border-top: 1px solid #262e40;
+            padding-top: 24px;
+            font-size: 13px;
+            color: #7d8db0;
+        }
+
+        .server-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .pulse-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #0f0;
+            box-shadow: 0 0 10px #1feb9f;
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        /* ---------- MAIN CONTENT ---------- */
+        .main-content {
+            flex: 1;
+            padding: 30px 36px;
+            background: #0f131b;
+            overflow-y: auto;
+        }
+
+        /* Header */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title h1 {
+            font-weight: 600;
+            font-size: 28px;
+            color: #f0f6ff;
+        }
+
+        .page-title p {
+            color: #8f9fc0;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: #1b2330;
+            padding: 8px 20px 8px 16px;
+            border-radius: 40px;
+            border: 1px solid #324十五;
+            border: 1px solid #2d3b50;
+        }
+
+        .admin-profile i {
+            font-size: 1.8rem;
+            color: #2fcb9c;
+        }
+
+        .live-badge {
+            background: #1e3a3a;
+            color: #7ef0d0;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Stat Cards */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #151e28;
+            border-radius: 24px;
+            padding: 22px 20px;
+            border: 1px solid #293544;
+            box-shadow: 0 10px 20px -8px rgba(0,0,0,0.6);
+            backdrop-filter: blur(2px);
+            transition: transform 0.15s;
+        }
+
+        .stat-card:hover { transform: translateY(-3px); border-color: #3f5b77; }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            color: #9eb1d0;
+            font-size: 15px;
+            margin-bottom: 14px;
+        }
+
+        .stat-value {
+            font-size: 34px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        .stat-change {
+            color: #2ee7b0;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Chart + balance row */
+        .mid-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            flex: 2;
+            background: #131b25;
+            border-radius: 24px;
+            padding: 20px 24px;
+            border: 1px solid #28303e;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .admin-balance-panel {
+            flex: 1;
+            background: #0f1922;
+            border-radius: 24px;
+            padding: 24px;
+            border: 1px solid #2b3c50;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .balance-large {
+            font-size: 40px;
+            font-weight: 700;
+            margin: 10px 0 20px;
+            color: #c1ffec;
+        }
+
+        .topup-group {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .topup-group input {
+            flex: 1;
+            background: #1f2b38;
+            border: 1px solid #3c5068;
+            padding: 14px 12px;
+            border-radius: 16px;
+            color: white;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background: #00c9a7;
+            border: none;
+            padding: 0 24px;
+            border-radius: 16px;
+            font-weight: 700;
+            color: #0a141c;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid #5effd4;
+        }
+
+        .btn-primary:hover { background: #2ef0c2; }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #3c5a7c;
+            color: #bdd3ff;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-outline:hover { background: #1e334a; color: white; }
+
+        /* Tables */
+        .section-card {
+            background: #111b26;
+            border-radius: 28px;
+            padding: 24px 26px;
+            margin-bottom: 30px;
+            border: 1px solid #253545;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h3 {
+            font-weight: 600;
+            color: #d6eaff;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            text-align: left;
+            padding: 16px 8px 12px 8px;
+            color: #95abcf;
+            font-weight: 500;
+            border-bottom: 1px solid #2a384b;
+        }
+
+        td {
+            padding: 14px 8px;
+            border-bottom: 1px solid #1f2c3c;
+        }
+
+        .badge-online {
+            background: #0f4530;
+            color: #7ef0ba;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-offline {
+            background: #2f3848;
+            color: #a2b6d4;
+        }
+
+        .action-btn {
+            background: none;
+            border: 1px solid #3e5670;
+            color: #bcd0ff;
+            margin: 0 4px;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .action-btn:hover {
+            background: #27405c;
+            color: white;
+        }
+
+        .luck-input {
+            width: 70px;
+            background: #1d2a38;
+            border: 1px solid #3f5a78;
+            color: white;
+            padding: 6px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        /* logs */
+        .log-box {
+            background: #0c141e;
+            border-radius: 20px;
+            padding: 18px;
+            height: 170px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 13px;
+            border: 1px solid #283c51;
+        }
+
+        .notification-toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #1a3b38;
+            border-left: 6px solid #00e6b8;
+            padding: 16px 24px;
+            border-radius: 20px;
+            color: #e6fff5;
+            font-weight: 500;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.7);
+            display: none;
+            z-index: 999;
+        }
+
+        i { margin-right: 4px; }
+        input:focus { outline: 1px solid #2ee0b0; }
+        button { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body>
+<div class="app-wrapper">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="logo-area">
+            <div class="logo"><i class="fas fa-crown"></i> SLOTID<strong>1928</strong></div>
+            <span class="badge-operator"><i class="fas fa-shield-alt"></i> OPERATOR SUITE · v3.2</span>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item active"><i class="fas fa-chart-pie"></i> Overview</div>
+            <div class="nav-item"><i class="fas fa-users-gear"></i> Player Management</div>
+            <div class="nav-item"><i class="fas fa-sliders-h"></i> Game Config</div>
+            <div class="nav-item"><i class="fas fa-arrow-trend-up"></i> Financials</div>
+            <div class="nav-item"><i class="fas fa-clock-rotate-left"></i> Withdrawals</div>
+            <div class="nav-item"><i class="fas fa-scroll"></i> System Logs</div>
+        </div>
+        <div class="bottom-info">
+            <div class="server-status"><span class="pulse-dot"></span> GATEWAY · LIVE</div>
+            <div><i class="fas fa-database"></i> Replication · 0ms lag</div>
+        </div>
+    </div>
+
+    <!-- MAIN PANEL -->
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Operator Console</h1>
+                <p><i class="fas fa-map-pin"></i> Real-time monitoring · Session: ADMIN_001</p>
+            </div>
+            <div class="admin-profile">
+                <i class="fas fa-user-astronaut"></i>
+                <span style="font-weight:600;">master.operator</span>
+                <span class="live-badge"><i class="fas fa-circle"></i> <span id="liveUserCounter">243</span> online</span>
+            </div>
+        </div>
+
+        <!-- 4 STAT CARDS -->
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-header"><span><i class="fas fa-user"></i> Active Players</span> <i class="fas fa-chevron-up" style="color:#2ee7b0;"></i></div>
+                <div class="stat-value" id="activePlayersStat">1,284</div>
+                <div class="stat-change">+8.2% vs yesterday</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header"><span><i class="fas fa-coins"></i> Today Deposits</span></div>
+                <div class="stat-value" id="todayDepositStat">Rp 847M</div>
+                <div class="stat-change">+12% </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header"><span><i class="fas fa-hand-holding-dollar"></i> Withdrawals</span></div>
+                <div class="stat-value" id="todayWithdrawStat">Rp 312M</div>
+                <div class="stat-change" style="color:#f0b37b;">pending 43</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header"><span><i class="fas fa-trophy"></i> Jackpot Pool</span></div>
+                <div class="stat-value" id="jackpotStat">Rp 1.28B</div>
+                <div class="stat-change">MEGA · 0.12%</div>
+            </div>
+        </div>
+
+        <!-- CHART + ADMIN BALANCE -->
+        <div class="mid-row">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-line" style="color:#2fcb9c;"></i> Revenue (7d)</h3>
+                    <span class="badge-online">+23% vs last week</span>
+                </div>
+                <canvas id="revenueChart" height="140"></canvas>
+            </div>
+            <div class="admin-balance-panel">
+                <div><i class="fas fa-building-columns"></i> OPERATOR VAULT</div>
+                <div class="balance-large" id="adminBalanceDisplay">Rp 2.847.500.000</div>
+                <div style="margin-bottom: 8px; color:#9bb7dd;">Liquidity · House Edge 4.2%</div>
+                <div class="topup-group">
+                    <input type="number" id="topupAmountInput" placeholder="Jumlah (Rp)" value="50000000">
+                    <button class="btn-primary" onclick="window.topupVault()"><i class="fas fa-plus-circle"></i> Topup</button>
+                </div>
+                <button class="btn-outline" style="margin-top: 16px;" onclick="window.simulateProfitUpdate()"><i class="fas fa-rotate"></i> Simulate flow</button>
+            </div>
+        </div>
+
+        <!-- PLAYER MANAGEMENT (DYNAMIC) -->
+        <div class="section-card">
+            <div class="section-header">
+                <h3><i class="fas fa-id-card"></i> Active Player Ledger</h3>
+                <div>
+                    <button class="btn-outline" onclick="window.addNewPlayer()"><i class="fas fa-user-plus"></i> New Player</button>
+                    <button class="btn-outline" onclick="window.renderUserTable()"><i class="fas fa-arrows-rotate"></i> Refresh</button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr><th>ID</th><th>Nama</th><th>Saldo (Rp)</th><th>Luck Rate</th><th>Status</th><th style="min-width:180px;">Actions</th></tr>
+                    </thead>
+                    <tbody id="dynamicUserTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PENDING WITHDRAWALS + GAME CONFIG (2 columns) -->
+        <div style="display: flex; gap: 24px; margin-bottom: 30px;">
+            <div class="section-card" style="flex:1.4; margin-bottom:0;">
+                <div class="section-header"><h3><i class="fas fa-clock"></i> Withdrawal Requests</h3><span class="live-badge">4 pending</span></div>
+                <table>
+                    <thead><tr><th>User</th><th>Amount</th><th>Method</th><th>Action</th></tr></thead>
+                    <tbody id="withdrawTableBody"></tbody>
+                </table>
+            </div>
+            <div class="section-card" style="flex:1; margin-bottom:0;">
+                <div class="section-header"><h3><i class="fas fa-gamepad"></i> Game Control</h3></div>
+                <div style="margin-bottom: 16px;"><label>Jackpot Utama (Rp)</label>
+                    <input type="number" id="jackpotInput" style="width:100%; background:#1d2a38; border:1px solid #365573; padding:12px; border-radius:16px; color:white;" value="1280000000">
+                </div>
+                <div style="display:flex; gap:12px; margin-bottom:16px;">
+                    <div style="flex:1"><label>Mega Prob (%)</label><input id="megaProb" type="number" step="0.01" value="0.12" style="width:100%; background:#1d2a38; border:1px solid #365573; padding:10px; border-radius:16px; color:white;"></div>
+                    <div style="flex:1"><label>Grand Prob (%)</label><input id="grandProb" type="number" step="0.1" value="1.8" style="width:100%; background:#1d2a38; border:1px solid #365573; padding:10px; border-radius:16px; color:white;"></div>
+                </div>
+                <button class="btn-primary" style="width:100%; padding:14px;" onclick="window.saveGameConfig()"><i class="fas fa-floppy-disk"></i> Update RNG Settings</button>
+            </div>
+        </div>
+
+        <!-- SYSTEM LOGS -->
+        <div class="section-card">
+            <div class="section-header"><h3><i class="fas fa-terminal"></i> System Event Log</h3><i class="fas fa-microchip"></i></div>
+            <div class="log-box" id="logContainer">
+                [14:32:21] SYS · Operator vault initialized.<br>
+                [14:35:10] PLAYER · U004 (Rudi) topup Rp 2.500.000<br>
+                [14:36:02] GAME · Jackpot updated to Rp 1.28B<br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NOTIFICATION TOAST -->
+<div class="notification-toast" id="liveToast"><i class="fas fa-bell"></i> <span id="toastMsg">Action completed</span></div>
+
+<script>
+    (function(){
+        "use strict";
+
+        // ---------- STATE (simulasi real) ----------
+        let adminBalance = 2847500000;
+        let jackpotValue = 1280000000;
+        const userDatabase = [
+            { id: 'U001', name: 'Ahmad R.', balance: 1250000, luck: 52, status: 'Online' },
+            { id: 'U002', name: 'Siti M.', balance: 8750000, luck: 71, status: 'Offline' },
+            { id: 'U003', name: 'Budi S.', balance: 340000, luck: 44, status: 'Online' },
+            { id: 'U004', name: 'Rudi H.', balance: 15200000, luck: 68, status: 'Online' },
+            { id: 'U005', name: 'Lina W.', balance: 2200000, luck: 59, status: 'Offline' }
+        ];
+
+        let withdrawRequests = [
+            { user: 'U002 - Siti', amount: 3500000, method: 'Bank BCA' },
+            { user: 'U004 - Rudi', amount: 12500000, method: 'DANA' },
+            { user: 'U001 - Ahmad', amount: 500000, method: 'Gopay' },
+            { user: 'U006 - Dewi', amount: 875000, method: 'Bank Mandiri' }
+        ];
+
+        // Helper: format rupiah
+        function formatRupiah(angka) {
+            return 'Rp ' + angka.toLocaleString('id-ID');
+        }
+
+        // Toast
+        function showToast(msg) {
+            const toast = document.getElementById('liveToast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 2800);
+        }
+
+        // Log system
+        function addLog(message) {
+            const logDiv = document.getElementById('logContainer');
+            const time = new Date().toLocaleTimeString('id-ID', { hour12: false });
+            const entry = `[${time}] ${message}<br>`;
+            logDiv.innerHTML = entry + logDiv.innerHTML;
+        }
+
+        // Update UI stats
+        function refreshStatsUI() {
+            document.getElementById('adminBalanceDisplay').innerText = formatRupiah(adminBalance);
+            document.getElementById('jackpotStat').innerText = formatRupiah(jackpotValue);
+            document.getElementById('jackpotInput').value = jackpotValue;
+            // simulasi random active player
+            const active = 1200 + Math.floor(Math.random() * 200);
+            document.getElementById('activePlayersStat').innerText = active.toLocaleString();
+        }
+
+        // Render user table
+        window.renderUserTable = function() {
+            const tbody = document.getElementById('dynamicUserTable');
+            let html = '';
+            userDatabase.forEach((u, index) => {
+                html += `<tr>
+                    <td>${u.id}</td>
+                    <td><i class="fas fa-user" style="color:#3fcb9c;"></i> ${u.name}</td>
+                    <td>${formatRupiah(u.balance)}</td>
+                    <td><input type="number" step="1" min="1" max="100" value="${u.luck}" class="luck-input" id="luck_${u.id}" style="width:80px;"> %</td>
+                    <td><span class="badge-online ${u.status==='Offline'?'badge-offline':''}">${u.status}</span></td>
+                    <td>
+                        <button class="action-btn" onclick="window.updateLuck('${u.id}')"><i class="fas fa-dice"></i> Set Luck</button>
+                        <button class="action-btn" onclick="window.topupPlayer('${u.id}')"><i class="fas fa-sack-dollar"></i> Topup</button>
+                        <button class="action-btn" onclick="window.toggleBan('${u.id}')"><i class="fas fa-ban"></i> ${u.status==='Online'?'Suspend':'Activate'}</button>
+                    </td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+            renderWithdrawTable();
+            refreshStatsUI();
+        };
+
+        // Render withdraw table
+        function renderWithdrawTable() {
+            const tbody = document.getElementById('withdrawTableBody');
+            let html = '';
+            withdrawRequests.forEach((req, idx) => {
+                html += `<tr><td>${req.user}</td><td>${formatRupiah(req.amount)}</td><td>${req.method}</td>
+                    <td><button class="action-btn" onclick="window.approveWithdraw(${idx})"><i class="fas fa-check-circle"></i> Approve</button>
+                    <button class="action-btn" onclick="window.rejectWithdraw(${idx})"><i class="fas fa-times"></i> Reject</button></td></tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // Actions
+        window.updateLuck = function(userId) {
+            const input = document.getElementById(`luck_${userId}`);
+            if (!input) return;
+            const newLuck = parseInt(input.value);
+            if (isNaN(newLuck) || newLuck<0 || newLuck>100) { showToast('Luck rate 0-100'); return; }
+            const user = userDatabase.find(u => u.id === userId);
+            if (user) { user.luck = newLuck; addLog(`CONFIG · Luck rate ${user.name} diubah ke ${newLuck}%`); showToast(`Luck ${user.name} updated`); }
+            renderUserTable();
+        };
+
+        window.topupPlayer = function(userId) {
+            const amount = prompt('Masukkan jumlah topup (Rp):', '500000');
+            if (!amount) return;
+            const val = parseInt(amount.replace(/\D/g,''));
+            if (isNaN(val) || val<=0) { showToast('Nominal tidak valid'); return; }
+            const user = userDatabase.find(u => u.id === userId);
+            if (user) {
+                user.balance += val;
+                addLog(`TRX · Topup player ${user.name} +${formatRupiah(val)}. Saldo sekarang ${formatRupiah(user.balance)}`);
+                showToast(`Topup ${user.name} berhasil`);
+            }
+            renderUserTable();
+        };
+
+        window.toggleBan = function(userId) {
+            const user = userDatabase.find(u => u.id === userId);
+            if (user) {
+                const newStatus = user.status === 'Online' ? 'Suspended' : 'Online';
+                user.status = newStatus;
+                addLog(`ADMIN · Status ${user.name} diubah menjadi ${newStatus}`);
+                showToast(`User ${user.name} ${newStatus}`);
+            }
+            renderUserTable();
+        };
+
+        window.addNewPlayer = function() {
+            const name = prompt('Nama player baru:');
+            if (!name) return;
+            const newId = 'U' + String(userDatabase.length+1).padStart(3,'0');
+            userDatabase.push({ id: newId, name: name, balance: 100000, luck: 50, status: 'Online' });
+            addLog(`SYSTEM · Player baru ${name} (${newId}) ditambahkan.`);
+            renderUserTable();
+            showToast('Player baru ditambahkan');
+        };
+
+        // Withdraw actions
+        window.approveWithdraw = function(index) {
+            if (index >=0 && index < withdrawRequests.length) {
+                const req = withdrawRequests[index];
+                addLog(`WITHDRAW · Approved ${req.user} ${formatRupiah(req.amount)}`);
+                showToast(`Withdraw ${req.user} approved`);
+                withdrawRequests.splice(index,1);
+                renderWithdrawTable();
+            }
+        };
+        window.rejectWithdraw = function(index) {
+            if (index >=0 && index < withdrawRequests.length) {
+                const req = withdrawRequests[index];
+                addLog(`WITHDRAW · Rejected ${req.user} ${formatRupiah(req.amount)}`);
+                showToast(`Withdraw ${req.user} ditolak`);
+                withdrawRequests.splice(index,1);
+                renderWithdrawTable();
+            }
+        };
+
+        // Vault topup
+        window.topupVault = function() {
+            const input = document.getElementById('topupAmountInput');
+            let val = parseInt(input.value);
+            if (isNaN(val) || val<=0) { showToast('Masukkan nominal valid'); return; }
+            adminBalance += val;
+            addLog(`VAULT · Topup operator +${formatRupiah(val)}. Saldo ${formatRupiah(adminBalance)}`);
+            refreshStatsUI();
+            showToast('Vault bertambah');
+            input.value = '';
+        };
+
+        window.saveGameConfig = function() {
+            const jp = parseInt(document.getElementById('jackpotInput').value);
+            const mega = parseFloat(document.getElementById('megaProb').value);
+            const grand = parseFloat(document.getElementById('grandProb').value);
+            if (!isNaN(jp) && jp>0) jackpotValue = jp;
+            addLog(`GAME · Config updated: Jackpot ${formatRupiah(jackpotValue)}, Mega ${mega}%, Grand ${grand}%`);
+            refreshStatsUI();
+            showToast('Game settings tersimpan');
+        };
+
+        window.simulateProfitUpdate = function() {
+            const inc = Math.floor(Math.random() * 150000000) + 20000000;
+            adminBalance += inc;
+            addLog(`SIM · Profit adjustment +${formatRupiah(inc)}. New vault ${formatRupiah(adminBalance)}`);
+            refreshStatsUI();
+            showToast('Profit simulation');
+        };
+
+        // Live user counter & random log injection
+        function liveSimulation() {
+            const el = document.getElementById('liveUserCounter');
+            let base = 230 + Math.floor(Math.random()*40);
+            el.innerText = base;
+            // random player activity log (kadang)
+            if (Math.random()>0.6) {
+                const randUser = userDatabase[Math.floor(Math.random()*userDatabase.length)];
+                if (randUser) {
+                    const spin = Math.floor(Math.random()*50000)+10000;
+                    addLog(`GAME · ${randUser.name} spin Rp ${spin.toLocaleString()}`);
+                }
+            }
+        }
+
+        // Chart init
+        function initChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Revenue (juta Rp)',
+                        data: [420, 580, 710, 890, 1020, 1350, 1580],
+                        borderColor: '#2ee7b0',
+                        backgroundColor: 'rgba(46, 231, 176, 0.05)',
+                        borderWidth: 3,
+                        tension: 0.2,
+                        fill: true,
+                        pointBackgroundColor: '#1b3b3b',
+                        pointBorderColor: '#7ef0d0'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { labels: { color: '#cbd5e6' } } },
+                    scales: { x: { ticks: { color: '#9aaec9' }, grid: { color: '#253544' } },
+                             y: { ticks: { color: '#b7cbee', callback: (v)=> v+'M' }, grid: { color: '#1e2e3f' } } }
+                }
+            });
+        }
+
+        // interval live
+        setInterval(() => {
+            liveSimulation();
+            // update deposit/withdraw stat simulasi
+            const deposit = (800 + Math.random()*200).toFixed(0);
+            document.getElementById('todayDepositStat').innerText = 'Rp ' + (parseInt(deposit)*1.2).toFixed(0) + 'M';
+            document.getElementById('todayWithdrawStat').innerText = 'Rp ' + (deposit*0.45).toFixed(0) + 'M';
+        }, 9000);
+
+        // expose global render
+        window.renderUserTable = renderUserTable;
+        window.renderWithdrawTable = renderWithdrawTable;
+        window.refreshStatsUI = refreshStatsUI;
+
+        // Init all
+        window.onload = function() {
+            initChart();
+            renderUserTable();
+            refreshStatsUI();
+            liveSimulation();
+            addLog('SYSTEM · Operator console online. Selamat bertugas.');
+        };
+    })();
+</script>
+</body>
+</html>
